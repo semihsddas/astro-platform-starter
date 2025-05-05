@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roket Arama</title>
+    <style>
+        :root {
+            --bg-color: #1B1B1B;
+            --nav-bg: #2D2D2D;
+            --text-color: #FFFFFF;
+            --accent-color: #FF1B2D;
+            --hover-color: #FF3D4F;
+            --border-color: #3D3D3D;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .header {
+            background: var(--nav-bg);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .header a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            background: var(--nav-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:hover,
+        .search-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(255,27,45,0.2);
+        }
+
+        .search-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .search-button {
+            background: var(--nav-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 14px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-button:hover {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .results {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .result-item {
+            background: var(--nav-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            transform: translateX(10px);
+            border-color: var(--accent-color);
+        }
+
+        .result-title {
+            color: var(--accent-color);
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .result-url {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .result-description {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            z-index: 1000;
+            display: none;
+        }
+
+        .viewer-header {
+            background: var(--nav-bg);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .viewer-title {
+            font-size: 16px;
+            color: var(--text-color);
+        }
+
+        .viewer-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .viewer-close:hover {
+            color: var(--accent-color);
+        }
+
+        .viewer-iframe {
+            width: 100%;
+            height: calc(100% - 60px);
+            border: none;
+            background: var(--bg-color);
+        }
+
+        .footer {
+            background: var(--nav-bg);
+            color: #888;
+            font-size: 14px;
+            padding: 15px 30px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .footer a {
+            color: #888;
+            text-decoration: none;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: var(--accent-color);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .quick-link {
+            background: var(--nav-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-link:hover {
+            background: var(--accent-color);
+            transform: translateY(-5px);
+        }
+
+        .quick-link h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .quick-link p {
+            margin: 5px 0 0;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <a href="#" onclick="showBookmarks()">🔖 Yer İşaretleri</a>
+            <a href="#" onclick="showHistory()">🕒 Geçmiş</a>
+            <a href="#" onclick="showDownloads()">⬇️ İndirilenler</a>
+        </div>
+        <div class="header-right">
+            <a href="#" onclick="showSettings()">⚙️ Ayarlar</a>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="search-container" id="search-container">
+            <div class="logo">🚀 Roket Arama</div>
+            <div class="search-box">
+                <input type="text" class="search-input" id="search-input" placeholder="Arama yapın veya URL girin">
+            </div>
+            <div class="search-buttons">
+                <button class="search-button" onclick="search()">🔍 Ara</button>
+                <button class="search-button" onclick="feelingLucky()">🎯 Kendimi Şanslı Hissediyorum</button>
+            </div>
+
+            <div class="quick-links">
+                <div class="quick-link" onclick="searchCategory('haberler')">
+                    <h3>📰 Haberler</h3>
+                    <p>Güncel haberler</p>
+                </div>
+                <div class="quick-link" onclick="searchCategory('teknoloji')">
+                    <h3>💻 Teknoloji</h3>
+                    <p>Teknoloji haberleri</p>
+                </div>
+                <div class="quick-link" onclick="searchCategory('spor')">
+                    <h3>⚽ Spor</h3>
+                    <p>Spor haberleri</p>
+                </div>
+                <div class="quick-link" onclick="searchCategory('eğitim')">
+                    <h3>📚 Eğitim</h3>
+                    <p>Eğitim kaynakları</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="results" id="search-results">
+            <!-- Arama sonuçları buraya gelecek -->
+        </div>
+    </div>
+
+    <div class="viewer" id="viewer">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewer-title"></div>
+            <button class="viewer-close" onclick="closeViewer()">×</button>
+        </div>
+        <iframe class="viewer-iframe" id="viewer-iframe" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads allow-presentation allow-top-navigation allow-top-navigation-by-user-activation"></iframe>
+    </div>
+
+    <div class="footer">
+        <div>
+            <a href="#">Hakkında</a>
+            <a href="#">Reklam</a>
+            <a href="#">İşletme</a>
+        </div>
+        <div>
+            <a href="#">Gizlilik</a>
+            <a href="#">Şartlar</a>
+            <a href="#">Ayarlar</a>
+        </div>
+    </div>
+
+    <script>
+        let searchHistory = [];
+        let bookmarks = [];
+
+        async function search() {
+            const query = document.getElementById('search-input').value.trim();
+            if (!query) return;
+
+            if (query.startsWith('http://') || query.startsWith('https://')) {
+                openInViewer(query, query);
+                return;
+            }
+
+            // Arama sonuçları bölümünü göster
+            document.getElementById('search-container').style.display = 'none';
+            const resultsDiv = document.getElementById('search-results');
+            resultsDiv.innerHTML = '<div class="loading">Arama yapılıyor...</div>';
+
+            try {
+                // Örnek arama sonuçları
+                const results = [
+                    {
+                        title: `${query} - Arama Sonuçları`,
+                        url: `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
+                        description: 'Bu konu hakkında detaylı bilgi için tıklayın'
+                    },
+                    {
+                        title: `${query} - Haberler`,
+                        url: `https://news.duckduckgo.com/?q=${encodeURIComponent(query)}`,
+                        description: 'Bu konuyla ilgili güncel haberler'
+                    },
+                    {
+                        title: `${query} - Görseller`,
+                        url: `https://duckduckgo.com/?q=${encodeURIComponent(query)}&iax=images&ia=images`,
+                        description: 'Bu konuyla ilgili görseller'
+                    },
+                    {
+                        title: `${query} - Videolar`,
+                        url: `https://duckduckgo.com/?q=${encodeURIComponent(query)}&iax=videos&ia=videos`,
+                        description: 'Bu konuyla ilgili videolar'
+                    }
+                ];
+
+                // Sonuçları göster
+                resultsDiv.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h2 style="color: var(--accent-color);">"${query}" için arama sonuçları</h2>
+                        <p style="color: #888;">Yaklaşık 0 sonuç bulundu</p>
+                    </div>
+                    ${results.map(result => `
+                        <div class="result-item" onclick="openInViewer('${result.url}', '${result.title}')">
+                            <div class="result-title">${result.title}</div>
+                            <div class="result-url">${result.url}</div>
+                            <div class="result-description">${result.description}</div>
+                        </div>
+                    `).join('')}
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button class="search-button" onclick="searchMore('${query}')">Daha Fazla Sonuç</button>
+                    </div>
+                `;
+
+                // Arama geçmişine ekle
+                addToHistory(query);
+            } catch (error) {
+                resultsDiv.innerHTML = '<div class="loading">Arama sırasında bir hata oluştu. Lütfen tekrar deneyin.</div>';
+            }
+        }
+
+        function searchMore(query) {
+            const resultsDiv = document.getElementById('search-results');
+            
+            // Yeni sonuçlar ekle
+            const moreResults = [
+                {
+                    title: `${query} - Wikipedia`,
+                    url: `https://tr.wikipedia.org/wiki/${encodeURIComponent(query)}`,
+                    description: 'Wikipedia\'da bu konu hakkında bilgi alın'
+                },
+                {
+                    title: `${query} - Sosyal Medya`,
+                    url: `https://duckduckgo.com/?q=${encodeURIComponent(query)}+site%3Atwitter.com`,
+                    description: 'Sosyal medyada bu konuyla ilgili paylaşımlar'
+                }
+            ];
+
+            const newResults = moreResults.map(result => `
+                <div class="result-item" onclick="openInViewer('${result.url}', '${result.title}')">
+                    <div class="result-title">${result.title}</div>
+                    <div class="result-url">${result.url}</div>
+                    <div class="result-description">${result.description}</div>
+                </div>
+            `).join('');
+
+            // Mevcut "Daha Fazla Sonuç" butonunu kaldır
+            resultsDiv.querySelector('.search-button').remove();
+            
+            // Yeni sonuçları ekle
+            resultsDiv.insertAdjacentHTML('beforeend', newResults);
+            
+            // Yeni "Daha Fazla Sonuç" butonu ekle
+            resultsDiv.insertAdjacentHTML('beforeend', `
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="search-button" onclick="searchMore('${query}')">Daha Fazla Sonuç</button>
+                </div>
+            `);
+        }
+
+        function addToHistory(query) {
+            searchHistory.unshift({
+                query: query,
+                timestamp: new Date().toISOString()
+            });
+            searchHistory = searchHistory.slice(0, 100);
+            localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+        }
+
+        function showHistory() {
+            const resultsDiv = document.getElementById('search-results');
+            const history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+            
+            resultsDiv.innerHTML = `
+                <h2 style="margin-bottom: 20px;">Arama Geçmişi</h2>
+                ${history.map(item => `
+                    <div class="result-item" onclick="searchQuery('${item.query}')">
+                        <div class="result-title">${item.query}</div>
+                        <div class="result-url">${new Date(item.timestamp).toLocaleString()}</div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function searchQuery(query) {
+            document.getElementById('search-input').value = query;
+            search();
+        }
+
+        function searchCategory(category) {
+            document.getElementById('search-input').value = category;
+            search();
+        }
+
+        function openInViewer(url, title) {
+            const viewer = document.getElementById('viewer');
+            const iframe = document.getElementById('viewer-iframe');
+            const viewerTitle = document.getElementById('viewer-title');
+
+            // Geçmiş URL'yi kaydet
+            const currentUrl = iframe.src;
+            if (currentUrl) {
+                window.history.pushState({ url: currentUrl, title: viewerTitle.textContent }, '', '');
+            }
+
+            viewerTitle.textContent = title;
+            viewer.style.display = 'block';
+            
+            try {
+                // URL'yi düzenle
+                let targetUrl = url;
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    targetUrl = 'https://' + url;
+                }
+                
+                // iframe'i yükle
+                iframe.src = targetUrl;
+                
+                // iframe yüklendiğinde
+                iframe.onload = function() {
+                    try {
+                        // iframe içeriğine erişmeyi dene
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        console.log('Sayfa başarıyla yüklendi');
+                    } catch (e) {
+                        console.log('Sayfa yüklendi ama içeriğe erişilemiyor');
+                    }
+                };
+            } catch (error) {
+                console.error('Sayfa yüklenirken hata oluştu:', error);
+            }
+        }
+
+        function closeViewer() {
+            const viewer = document.getElementById('viewer');
+            const iframe = document.getElementById('viewer-iframe');
+            viewer.style.display = 'none';
+            iframe.src = '';
+        }
+
+        // Geri/ileri navigasyonu için
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.url) {
+                openInViewer(event.state.url, event.state.title);
+            } else {
+                closeViewer();
+            }
+        });
+
+        // Geri butonu için
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeViewer();
+            }
+        });
+
+        function feelingLucky() {
+            const query = document.getElementById('search-input').value.trim();
+            if (!query) {
+                openInViewer('https://duckduckgo.com/', 'DuckDuckGo');
+            } else {
+                openInViewer(`https://duckduckgo.com/?q=${encodeURIComponent(query)}&t=h_`, query);
+            }
+        }
+
+        function showBookmarks() {
+            const resultsDiv = document.getElementById('search-results');
+            const savedBookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+            
+            resultsDiv.innerHTML = `
+                <h2 style="margin-bottom: 20px;">Yer İşaretleri</h2>
+                ${savedBookmarks.map(bookmark => `
+                    <div class="result-item" onclick="openInViewer('${bookmark.url}', '${bookmark.title}')">
+                        <div class="result-title">${bookmark.title}</div>
+                        <div class="result-url">${bookmark.url}</div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function showDownloads() {
+            const resultsDiv = document.getElementById('search-results');
+            resultsDiv.innerHTML = '<div class="loading">İndirilenler özelliği yakında eklenecek...</div>';
+        }
+
+        function showSettings() {
+            const resultsDiv = document.getElementById('search-results');
+            resultsDiv.innerHTML = `
+                <h2 style="margin-bottom: 20px;">Ayarlar</h2>
+                <div class="result-item">
+                    <div class="result-title">Tema</div>
+                    <div class="result-description">Koyu tema aktif</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-title">Arama Motoru</div>
+                    <div class="result-description">DuckDuckGo</div>
+                </div>
+            `;
+        }
+
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                search();
+            }
+        });
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', () => {
+            // Geçmişi yükle
+            const savedHistory = localStorage.getItem('searchHistory');
+            if (savedHistory) {
+                searchHistory = JSON.parse(savedHistory);
+            }
+
+            // Yer işaretlerini yükle
+            const savedBookmarks = localStorage.getItem('bookmarks');
+            if (savedBookmarks) {
+                bookmarks = JSON.parse(savedBookmarks);
+            }
+        });
+
+        // Sonuç öğelerine tıklama olayı ekle
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.result-item')) {
+                const url = e.target.closest('.result-item').querySelector('.result-url').textContent;
+                window.open(url, '_blank');
+            }
+        });
+    </script>
+</body>
+</html>
